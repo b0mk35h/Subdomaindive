@@ -32,5 +32,5 @@ sudo cp subdomaindive /usr/local/bin/
 ```
 
 # Use 
-subdomaindive domain.com
+b0mk35h@kali:~$ subdomaindive domain.com
 
