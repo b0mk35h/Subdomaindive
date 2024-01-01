@@ -25,12 +25,12 @@ Subdomaindive is a tool that helps you find subdomains. It helps you discover su
 # Install
 
 ```
-git clone https://github.com/zapstiko/Subdomaindive.git
+sudo git clone https://github.com/b0mk35h/Subdomaindive.git
 cd Subdomaindive
 chmod +x subdomaindive
 sudo cp subdomaindive /usr/local/bin/
 ```
 
 # Use 
-b0mk35h@kali:~$ subdomaindive domain.com
+b0mk35h㉿kali:~$ subdomaindive domain.com
 
