@@ -26,7 +26,7 @@ display_help() {
     cat <<"EOF"
 
 Usage:
-$ ./subdomaindive [flags]
+$ subdomaindive [flags]
 
 Flags:
 INPUT:
@@ -45,7 +45,7 @@ UPDATE:
   -u, -update     check for updates and update if available
   
 Sample command:  
-$ ./subdomaindive -d example.com -o output.txt
+$ subdomaindive -d example.com -o output.txt
 EOF
 }
 
