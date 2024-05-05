@@ -29,7 +29,7 @@ sudo su
 git clone https://github.com/b0mk35h/Subdomaindive.git
 cd Subdomaindive
 chmod +x subdomaindive
-sudo cp subdomaindive /usr/local/bin/
+cp subdomaindive /usr/local/bin/
 ```
 
 # Use 
