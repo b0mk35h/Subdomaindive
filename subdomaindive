@@ -133,7 +133,7 @@ if [[ $latest_version > $VERSION ]]; then
   echo -e "[\e[34mINF\e[0m] Current subdomaindive version: $VERSION [\e[32mupdate\e[0m]"
 fi
 
-echo -e "[\e[34mINF\e[0m] Enumerationg sun-domin for: [\e[32m$domain\e[0m]"
+echo -e "[\e[34mINF\e[0m] Enumerationg sub-domin for: [\e[32m$domain\e[0m]"
 
 # Validate input options
 if [[ -z "$domain" ]]; then
