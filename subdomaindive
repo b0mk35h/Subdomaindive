@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#version info
+VERSION="1.0"
+GITHUB_REPO="https://github.com/b0mk35h/Subdomaindive.git"
 
 cat <<"EOF"
 
