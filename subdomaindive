@@ -1,36 +1,145 @@
 #!/bin/bash
 
-#version info
+# Define the current version and GitHub repository
 VERSION="1.0"
 GITHUB_REPO="https://github.com/b0mk35h/Subdomaindive.git"
 
-cat <<"EOF"
-
-
-
-  ____        _     ____                        _       ____  _           
+# Function to display ASCII art and introductory message
+display_intro() {
+    cat <<"ASCII"
+ ____        _     ____                        _       ____  _           
 / ___| _   _| |__ |  _ \  ___  _ __ ___   __ _(_)_ __ |  _ \(_)_   _____ 
 \___ \| | | | '_ \| | | |/ _ \| '_ ` _ \ / _` | | '_ \| | | | \ \ / / _ \
  ___) | |_| | |_) | |_| | (_) | | | | | | (_| | | | | | |_| | |\ V /  __/
 |____/ \__,_|_.__/|____/ \___/|_| |_| |_|\__,_|_|_| |_|____/|_| \_/ \___|
 
                                                              
+	    🗲  Automated Subdomain Gathering Tool   🗲
+		 Developed By b0mk35h
+         
+ASCII
+}
 
-        🗲  Automated Subdomain Gathering Tool 🗲
-          GitHub: GitHub.com/b0mk35h/Subdomaindive
-             Developed By Pronay Biswas
-                       b0mk35h
+# Function to display help message
+display_help() {
+    display_intro
+    cat <<"EOF"
 
+Usage:
+$ ./subdomaindive.sh [flags]
+
+Flags:
+INPUT:
+  -d, -domain string  domains to find subdomains for
+
+OUTPUT:
+  -o, -output string  file to write output to
+
+HELP:
+  -h, -help       find help
+
+VERSION:
+  -v, -version    display version information
+  
+UPDATE:
+  -u, -update     check for updates and update if available
+  
+Sample command:  
+$ ./subdomaindive.sh -d example.com -o output.txt
 EOF
+}
 
-# Rest of the script remains unchanged
+# Function to display the current version
+display_version() {
+    echo "Current Version: $VERSION"
+}
 
-if [ $# -eq 0 ]; then
-    echo "Usage: $0 <domain>"
-    exit 1
+# Function to check for updates on GitHub
+check_for_updates() {
+    latest_version=$(git ls-remote --tags $GITHUB_REPO | awk '{print $2}' | grep -oE "v[0-9]+\.[0-9]+" | sort -V | tail -n1)
+    if [[ $latest_version > $VERSION ]]; then
+        echo "A newer version ($latest_version) is available on GitHub: $GITHUB_REPO"
+        read -p "Do you want to update? (y/n): " choice
+        if [[ $choice =~ ^[Yy]$ ]]; then
+            download_latest_version
+        fi
+    else
+        echo "You are using the latest version of Subdomaindive."
+    fi
+}
+
+# Function to download the latest version from GitHub
+download_latest_version() {
+    echo "Downloading the latest version..."
+    wget -O subdomaindive_new.sh "$GITHUB_REPO/raw/main/subdomaindive.sh"
+    if [[ $? -eq 0 ]]; then
+        echo "Download successful."
+        echo "Replacing the current script with the latest version..."
+        mv -f subdomaindive_new.sh subdomaindive.sh
+        chmod +x subdomaindive.sh
+        echo "Update completed. Please run the script again."
+        exit 0
+    else
+        echo "Failed to download the latest version."
+        exit 1
+    fi
+}
+
+# Parse command-line options
+while getopts ":d:o:hvu" opt; do
+    case ${opt} in
+        d )
+            domain="$OPTARG"
+            # Display intro if domain is provided without any other option
+            if [[ -z "$output_file" && -z "$domain" ]]; then
+                display_intro
+            fi
+            ;;
+        o )
+            output_file="$OPTARG"
+            ;;
+        h )
+            display_help
+            exit 0
+            ;;
+        v )
+            display_version
+            exit 0
+            ;;
+        u )
+            check_for_updates
+            exit 0
+            ;;
+        \? )
+            echo "Invalid option: $OPTARG" 1>&2
+            exit 1
+            ;;
+        : )
+            echo "Invalid option: $OPTARG requires an argument" 1>&2
+            exit 1
+            ;;
+    esac
+done
+
+shift $((OPTIND -1))
+
+# Display intro before starting subdomain enumeration
+display_intro
+
+# Check if tool is updated or not
+if [[ $latest_version > $VERSION ]]; then
+   echo -e "[\e[34mINF\e[0m] Current subdomaindive version: $VERSION [\e[30moutdated\e[0m]"
+ else
+  echo -e "[\e[34mINF\e[0m] Current subdomaindive version: $VERSION [\e[32mupdate\e[0m]"
 fi
 
-domain="$1"
+echo -e "[\e[34mINF\e[0m] Enumerationg sun-domin for: [\e[32m$domain\e[0m]"
+
+# Validate input options
+if [[ -z "$domain" ]]; then
+    echo "Please provide a domain."
+    exit 1
+fi
 
 # Function to find subdomains from Google
 find_subdomains_google() {
@@ -44,7 +153,7 @@ find_subdomains_google() {
 find_subdomains_crtsh() {
     url="https://crt.sh/?q=%25.$domain"
     user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    response=$(curl -A "$_user_agent" -s "$url")
+    response=$(curl -A "$user_agent" -s "$url")
     echo "$response" | grep -Eo ">[a-zA-Z0-9._-]+\.${domain}</TD>" | sed 's/[^>]*>\([^<]*\)<\/TD>/\1/' | sort -u
 }
 
@@ -101,8 +210,9 @@ find_subdomains_ask() {
 find_subdomains_threatcrowd() {
     url="https://www.threatcrowd.org/searchApi/v2/domain/report/?domain=$domain"
     response=$(curl -s "$url")
-    echo "$response" | jq -r '.subdomains[]' | sort -u
+    echo "$response" | grep -o '"subdomains":\[[^]]*\]' | sed 's/"subdomains":\[\([^]]*\)\]/\1/' | tr -d '"' | tr -d '[],' | tr -s ' ' '\n' | sort -u
 }
+
 
 # Function to find subdomains from SSL Certificates
 find_subdomains_sslcertificates() {
@@ -111,13 +221,16 @@ find_subdomains_sslcertificates() {
     response=$(curl -A "$user_agent" -s "$url")
     echo "$response" | grep -Eo ">[a-zA-Z0-9._-]+\.${domain}</TD>" | sed 's/[^>]*>\([^<]*\)<\/TD>/\1/' | sort -u
 }
-# Function to find subdomains from PassiveDNS
+
+# Function to find subdomains from PassiveDNS without jq
 find_subdomains_passivedns() {
     url="https://dns.bufferover.run/dns?q=.$domain"
     user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     response=$(curl -A "$user_agent" -s "$url")
-    echo "$response" | jq -r '.FDNS_A[]' | sed 's/^[^.]*\.//;s/[^.]*$//' | sort -u
+    echo "$response" | grep -o '"[^"]*\.${domain}"' | sed 's/"//g; s/^.*\.//; /^$/d' | sort -u
 }
+
+
 # Function to find subdomains using subfinder (with banner removed)
 find_subdomains_subfinder() {
     subfinder -d $domain -silent | sort -u
@@ -125,12 +238,13 @@ find_subdomains_subfinder() {
 
 # Function to find subdomains using amass (with banner removed)
 find_subdomains_amass() {
-    amass enum -norecursive -noalts -d $domain -silent | sort -u
+    amass enum -norecursive -d $domain -silent | sort -u
 }
 # Function to find subdomains using assetfinder
 find_subdomains_assetfinder() {
     assetfinder --subs-only $domain | sort -u
 }
+
 # Find subdomains from Google
 google_subdomains=$(find_subdomains_google)
 
@@ -180,7 +294,11 @@ num_subdomains=$(echo "$all_subdomains" | wc -l)
 if [ -z "$all_subdomains" ]; then
     echo "No subdomains found for $domain"
 else
-    echo "Number of subdomains found for $domain: $num_subdomains"
-    echo "Subdomains for $domain:"
-    echo "$all_subdomains"
+    echo -e "[\e[34mINF\e[0m] Number of subdomains found for $domain: $num_subdomains"
+fi
+
+# Save subdomains to file if output file is specified
+if [ -n "$output_file" ]; then
+    echo "$all_subdomains" > "$output_file"
+    echo -e "[\e[34mINF\e[0m] Subdomains saved to- $output_file"
 fi
