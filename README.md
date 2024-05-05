@@ -33,5 +33,39 @@ sudo cp subdomaindive /usr/local/bin/
 ```
 
 # Use 
+<pre>
 b0mk35h㉿kali:~$ subdomaindive -h
+ ____        _     ____                        _       ____  _           
+/ ___| _   _| |__ |  _ \  ___  _ __ ___   __ _(_)_ __ |  _ \(_)_   _____ 
+\___ \| | | | '_ \| | | |/ _ \| '_ ` _ \ / _` | | '_ \| | | | \ \ / / _ \
+ ___) | |_| | |_) | |_| | (_) | | | | | | (_| | | | | | |_| | |\ V /  __/
+|____/ \__,_|_.__/|____/ \___/|_| |_| |_|\__,_|_|_| |_|\____/|_| \_/ \___|
 
+                                                       
+            🗲  Automated Subdomain Gathering Tool   🗲
+                 Developed By b0mk35h
+         
+
+Usage:
+$ subdomaindive [flags]
+
+Flags:
+INPUT:
+  -d, -domain string  domains to find subdomains for
+
+OUTPUT:
+  -o, -output string  file to write output to
+
+HELP:
+  -h, -help       find help
+
+VERSION:
+  -v, -version    display version information
+  
+UPDATE:
+  -u, -update     check for updates and update if available
+  
+Sample command:  
+b0mk35h㉿kali:~$ subdomaindive -d example.com -o output.txt
+
+</pre>
